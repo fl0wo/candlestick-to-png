@@ -1,6 +1,6 @@
 {
   "name": "candlestick-to-png",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Lightweight library to draw an array of candles into a canvas and render it as png file.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -12,7 +12,7 @@
     "prepare": "npm run build",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
-    "publish": "npm publish --access=public"
+    "publish": "npm run build && npm publish --access=public"
   },
   "repository": {
     "type": "git",
