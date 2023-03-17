@@ -5,7 +5,7 @@ import { createCanvas } from 'canvas'
 import {Move} from "./utils/models";
 
 // Draw cat with lime helmet
-export const candleStickToPNG = (
+const candleStickToPNG = (
     candleArray:CandleStick[],
     moves:Move[] = [],
     fileName?:string
@@ -43,4 +43,8 @@ export const candleStickToPNG = (
     }
 
     return buffer;
+}
+
+export {
+    candleStickToPNG
 }
