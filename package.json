@@ -1,6 +1,6 @@
 {
   "name": "candlestick-to-png",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lightweight library to draw an array of candles into a canvas and render it as png file.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

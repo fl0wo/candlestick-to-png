@@ -8,7 +8,7 @@ import {MoveType} from "./utils/models";
 // Draw cat with lime helmet
 export const candleStickToPNG = (
     candleArray:CandleStick[],
-    fileName:string='./img.png'
+    fileName?:string
 ) =>{
 
     const canvas = createCanvas(800, 800)
@@ -50,5 +50,10 @@ export const candleStickToPNG = (
     gen.draw()
 
     const buffer = canvas.toBuffer("image/png");
-    fs.writeFileSync(fileName, buffer);
+
+    if(fileName){
+        fs.writeFileSync(fileName, buffer);
+    }
+
+    return buffer;
 }

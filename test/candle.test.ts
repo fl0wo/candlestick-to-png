@@ -3,6 +3,7 @@ import {candleStickToPNG} from "../src";
 import {daysBefore} from "../src/utils/general";
 import {LamboCandle} from "../src/utils/models";
 import {fetchCandles} from "./fetch-candles-util";
+import fs from "fs";
 
 async function testFetch(ticker: string): Promise<CandleStick[]> {
     const allCandles:LamboCandle[] = (await fetchCandles(ticker,daysBefore(new Date(),0.1).getTime())).data.body
@@ -20,7 +21,8 @@ async function testFetch(ticker: string): Promise<CandleStick[]> {
 
 const init = async () => {
     const array = await testFetch('BTC')
-    candleStickToPNG(array)
+    const buffer = candleStickToPNG(array);
+    fs.writeFileSync('./test.png', buffer);
 }
 
 init()
