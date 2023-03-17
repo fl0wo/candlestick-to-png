@@ -29,16 +29,12 @@ const init = async () => {
     const array = await testFetch('BTC')
     const buffer = candleStickToPNG(array,[
         {
-            cryptoValue: 25000,
             currencyType: 'BTC',
             timestamp: daysBefore(new Date(),0.08).getTime(),
-            totAmount: 0,
             type: MoveType.BUY
         },{
-            cryptoValue: 25100,
             currencyType: 'BTC',
             timestamp: daysBefore(new Date(),0.02).getTime(),
-            totAmount: 0,
             type: MoveType.SELL
         }]);
     fs.writeFileSync('./test.png', buffer);

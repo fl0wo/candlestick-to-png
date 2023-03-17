@@ -1,9 +1,8 @@
 export interface Move {
     type:MoveType;
     timestamp:number;
-    cryptoValue:number;
+    cryptoValue?:number;
     currencyType:string;
-    totAmount:number;
 }
 
 export interface Drop{

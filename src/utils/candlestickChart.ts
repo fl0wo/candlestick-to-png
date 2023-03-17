@@ -603,10 +603,17 @@ export class CandleStickGraph {
     }
 
     public addTrade(move:Move) {
+
+        const goalTs = move.timestamp;
+        const closestOnTs = this.candlesticks.reduce((prev, curr)=> {
+            return (Math.abs(curr.timestamp - goalTs) < Math.abs(prev.timestamp - goalTs) ? curr : prev);
+        });
+
+        const cryptoValue = closestOnTs.close
         this.moves.push({
             timestamp:move.timestamp,
             type:move.type,
-            cryptoValue:move.cryptoValue,
+            cryptoValue:move.cryptoValue ? move.cryptoValue : cryptoValue,
             currencyType:move.currencyType
         });
         return this;
