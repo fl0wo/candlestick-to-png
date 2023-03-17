@@ -3,7 +3,7 @@
 import {CandleStick} from "../src/utils/candlestickChart";
 import {candleStickToPNG} from "../src";
 import {daysBefore} from "../src/utils/general";
-import {LamboCandle} from "../src/utils/models";
+import {LamboCandle, MoveType} from "../src/utils/models";
 import {fetchCandles} from "./fetch-candles-util";
 import fs from "fs";
 
@@ -27,7 +27,20 @@ async function testFetch(ticker: string): Promise<CandleStick[]> {
 
 const init = async () => {
     const array = await testFetch('BTC')
-    const buffer = candleStickToPNG(array);
+    const buffer = candleStickToPNG(array,[
+        {
+            cryptoValue: 25000,
+            currencyType: 'BTC',
+            timestamp: daysBefore(new Date(),0.08).getTime(),
+            totAmount: 0,
+            type: MoveType.BUY
+        },{
+            cryptoValue: 25100,
+            currencyType: 'BTC',
+            timestamp: daysBefore(new Date(),0.02).getTime(),
+            totAmount: 0,
+            type: MoveType.SELL
+        }]);
     fs.writeFileSync('./test.png', buffer);
 }
 

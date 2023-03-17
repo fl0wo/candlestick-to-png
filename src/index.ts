@@ -2,12 +2,12 @@ import {CandleStick, CandleStickGraph} from "./utils/candlestickChart";
 import * as fs from 'fs'
 
 import { createCanvas } from 'canvas'
-import {daysBefore} from "./utils/general";
-import {MoveType} from "./utils/models";
+import {Move} from "./utils/models";
 
 // Draw cat with lime helmet
 export const candleStickToPNG = (
     candleArray:CandleStick[],
+    moves:Move[] = [],
     fileName?:string
 ) =>{
 
@@ -30,22 +30,9 @@ export const candleStickToPNG = (
     // @ts-ignore
     gen.initCanvasHeadless(canvas)
 
-    gen
-        .concatCandleSticks(candleArray)
-        .addTrade({
-            cryptoValue: 25000,
-            currencyType: 'BTC',
-            timestamp: daysBefore(new Date(),0.08).getTime(),
-            totAmount: 0,
-            type: MoveType.BUY
-        })
-        .addTrade({
-            cryptoValue: 24900,
-            currencyType: 'BTC',
-            timestamp: daysBefore(new Date(),0.02).getTime(),
-            totAmount: 0,
-            type: MoveType.SELL
-        })
+    gen.concatCandleSticks(candleArray)
+
+    moves.forEach((el)=>gen.addTrade(el))
 
     gen.draw()
 
