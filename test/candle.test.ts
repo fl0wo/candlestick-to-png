@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {CandleStick} from "../src/utils/candlestickChart";
 import {candleStickToPNG} from "../src";
 import {daysBefore} from "../src/utils/general";
@@ -6,7 +8,11 @@ import {fetchCandles} from "./fetch-candles-util";
 import fs from "fs";
 
 async function testFetch(ticker: string): Promise<CandleStick[]> {
-    const allCandles:LamboCandle[] = (await fetchCandles(ticker,daysBefore(new Date(),0.1).getTime())).data.body
+
+    const allCandles:LamboCandle[] = (await fetchCandles(ticker,daysBefore(new Date(),0.1).getTime()))
+        .data
+        .body
+
     return allCandles.map((candle)=>{
         const x:CandleStick = {
             close: candle.candle.close,
