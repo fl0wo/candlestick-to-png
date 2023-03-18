@@ -2,9 +2,8 @@ import {CandleStick, CandleStickGraph} from "./utils/candlestickChart";
 import * as fs from 'fs'
 
 import {Move} from "./utils/models";
-import {createCanvas} from "canvas";
 
-function renderChartOnCanvas(canvas: Canvas, candleArray: CandleStick[], moves: Move[], fileName: string | undefined) {
+function renderChartOnCanvas(canvas: any, candleArray: CandleStick[], moves: Move[], fileName: string | undefined) {
     const gen: CandleStickGraph = new CandleStickGraph({
         granularity: 1,
         wantBollingerBands: false,
