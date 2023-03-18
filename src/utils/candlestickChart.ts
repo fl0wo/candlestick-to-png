@@ -2,18 +2,19 @@
 import {SMA,EMA,RSI,TRIX,BollingerBands} from "technicalindicators";
 import {LamboCandle, Move} from "./models";
 
-export class CandleStickGraphOptions{
-    wantLines: boolean = false;
-    wantCandles: boolean = true;
-    zoom: number = 0;
-    zoomSpeed: number = 0.15
-    wantTrades: boolean = true;
-    wantSMA:boolean = true;
-    wantEMA:boolean = false;
-    wantRSI:boolean = false;
-    granularity: number = 1;
-    wantMACD: boolean=true;
-    wantBollingerBands: boolean=true;
+export interface CandleStickGraphOptions{
+    wantLines: boolean;
+    wantCandles: boolean;
+    zoom: number;
+    zoomSpeed: number
+    wantTrades: boolean;
+    wantSMA:boolean;
+    wantEMA:boolean ;
+    wantRSI:boolean ;
+    granularity: number;
+    wantMACD: boolean;
+    wantBollingerBands: boolean;
+    wantGrid:boolean;
 }
 
 class CandleStickDrag{
@@ -22,35 +23,34 @@ class CandleStickDrag{
     public dragStart:CandleStickPoint = CandleStickPoint.origin;
 }
 
-class CandleStickColors{
-    public gridColor!: string;
-    public gridTextColor!: string;
-    public lineColor!: string;
-    public mouseHoverTextColor!: string;
-    public greenColor!: string;
-    public redColor!: string;
-    public greenHoverColor!: string;
-    public redHoverColor!: string;
-    public mouseHoverBackgroundColor!: string;
-    public growLineColor!: string;
-    public blackColor!: string;
-    public whiteColor!: string;
-    public yellowColor!: string;
-    public purpleColor!: string;
-    public purpleColorTransparent!: string;
-    public yellowColorTransparent!: string;
-    public debugLineColor!: string;
-    public whiteColorTrasparent!: string;
-    public blueColor!: string;
+export interface CandleStickColors{
+    gridColor: string;
+    gridTextColor: string;
+    lineColor: string;
+    mouseHoverTextColor: string;
+    greenColor: string;
+    redColor: string;
+    greenHoverColor: string;
+    redHoverColor: string;
+    mouseHoverBackgroundColor: string;
+    growLineColor: string;
+    blackColor: string;
+    whiteColor: string;
+     yellowColor: string;
+     purpleColor: string;
+     purpleColorTransparent: string;
+     yellowColorTransparent: string;
+     debugLineColor: string;
+     whiteColorTrasparent: string;
+     blueColor: string;
 
-    public greenAreaColor!: string;
-    public redAreaColor!: string;
+     greenAreaColor: string;
+     redAreaColor: string;
 
-    public greenAreaColorIntens!: string;
-    public redAreaColorIntes!: string;
+     greenAreaColorIntens: string;
+     redAreaColorIntes: string;
 
-    public whiteColorMoreTrasparent!: string;
-
+     whiteColorMoreTrasparent: string;
 }
 
 class CandleStickPoint{
@@ -74,7 +74,8 @@ export class CandleStickGraph {
         granularity:1,
         wantRSI:true,
         wantMACD:true,
-        wantBollingerBands:true
+        wantBollingerBands:true,
+        wantGrid:true
     }
 
     private canvas!: HTMLCanvasElement;
@@ -186,11 +187,14 @@ export class CandleStickGraph {
         this.drops=[]
     }
 
-    //TODO: remove using double biding of angular
     public apply(options: CandleStickGraphOptions | undefined) {
         if (options) {
             this.options = options;
         }
+    }
+
+    public applyColors(options: CandleStickColors) {
+        this.colorInfo = options;
     }
 
     private _initCanvas(canvas: HTMLCanvasElement,canvasId?: string){
@@ -734,6 +738,7 @@ export class CandleStickGraph {
         const yStartRoundNumber = Math.ceil(this.yStart / niceNumber) * niceNumber;
         const yEndRoundNumber = Math.floor(this.yEnd / niceNumber) * niceNumber;
         for (let y = yStartRoundNumber; y <= yEndRoundNumber; y += niceNumber) {
+            if(this.options.wantGrid)
             this.drawLine(0, this.yToPixelCoords(y), this.width, this.yToPixelCoords(y), this.colorInfo.gridColor);
             const textWidth = this.context.measureText(String(this.roundPriceValue(y))).width;
             this.context.fillStyle = this.colorInfo.gridTextColor;
@@ -749,6 +754,7 @@ export class CandleStickGraph {
         if (this.xRange > 60 * 60 * 24 * 1000 * 5) b_formatAsDate = true;
 
         for (let x = xStartRoundNumber; x <= xEndRoundNumber; x += niceNumber) {
+            if(this.options.wantGrid)
             this.drawLine(this.xToPixelCoords(x), 0, this.xToPixelCoords(x), this.height, this.colorInfo.gridColor);
             const date = new Date(x);
             let dateStr = "";
