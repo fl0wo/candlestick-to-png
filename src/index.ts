@@ -1,7 +1,6 @@
 import {CandleStick, CandleStickGraph} from "./utils/candlestickChart";
 import * as fs from 'fs'
 
-import { createCanvas } from 'canvas'
 import {Move} from "./utils/models";
 
 // Draw cat with lime helmet
@@ -10,6 +9,7 @@ const candleStickToPNG = (
     moves:Move[] = [],
     fileName?:string
 ) =>{
+    const createCanvas = require('/opt/nodejs/node_modules/canvas').createCanvas
 
     const canvas = createCanvas(800, 800)
 
