@@ -1,9 +1,17 @@
 import {CandleStick, CandleStickGraph} from "./utils/candlestickChart";
 import * as fs from 'fs'
 
+import {createCanvas} from 'canvas'
 import {Move} from "./utils/models";
 
-function renderChartOnCanvas(canvas: any, candleArray: CandleStick[], moves: Move[], fileName: string | undefined) {
+function executeOnCanvas(
+    createCanvas:any,
+    candleArray: CandleStick[],
+    moves: Move[],
+    fileName: string | undefined
+) {
+
+    const canvas = createCanvas(800, 800)
     const gen: CandleStickGraph = new CandleStickGraph({
         granularity: 1,
         wantBollingerBands: false,
@@ -43,14 +51,12 @@ const candleStickToPNG = (
     fileName?:string
 ) =>{
     try{
-        //const createCanvas = require('/opt/nodejs/node_modules/canvas').createCanvas
-        const createCanvas = require('canvas').createCanvas
-        const canvas = createCanvas(800, 800)
-        return renderChartOnCanvas(canvas, candleArray, moves, fileName);
+        return executeOnCanvas(createCanvas,candleArray, moves, fileName);
     }catch (e) {
-        console.error('Error fetching canvas library',e)
-        return null;
+        console.error(e);
     }
+
+    return null;
 }
 
 export {
