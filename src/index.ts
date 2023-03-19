@@ -28,6 +28,7 @@ function executeOnCanvas(
         zoom: 0,
         zoomSpeed: 0,
         wantGrid: false,
+        wantStats:true,
         ...candleStickGraphOptions
     }
 

@@ -51,7 +51,9 @@ const init = async () => {
 
         wantBollingerBands:false,
 
-        wantGrid:false
+        wantGrid:false,
+
+        wantStats: true,
     }
 
     const colorsDarkTheme:CandleStickColors = {
@@ -81,14 +83,14 @@ const init = async () => {
         whiteColorMoreTrasparent: 'rgba(255,255,255,0.25)'
     }
 
-
     const buffer = candleStickToPNG(
         array,
         moves,
         options,
         colorsDarkTheme
     );
-    fs.writeFileSync('./test2.png', buffer);
+
+    fs.writeFileSync('./test3.png', buffer);
 }
 
 init()

@@ -15,6 +15,7 @@ export interface CandleStickGraphOptions{
     wantMACD: boolean;
     wantBollingerBands: boolean;
     wantGrid:boolean;
+    wantStats:boolean;
 }
 
 class CandleStickDrag{
@@ -75,7 +76,8 @@ export class CandleStickGraph {
         wantRSI:true,
         wantMACD:true,
         wantBollingerBands:true,
-        wantGrid:true
+        wantGrid:true,
+        wantStats:false,
     }
 
     private canvas!: HTMLCanvasElement;
@@ -150,7 +152,7 @@ export class CandleStickGraph {
 
     private readonly GENERAL_FONT_SIZE = 12;
     private readonly TEXT_FONT_SIZE = 20;
-    private readonly BASE_FONT = "Helvetica";
+    private readonly BASE_FONT = "Montserrat";
 
     constructor(options: CandleStickGraphOptions | undefined) {
         this.apply(options)
@@ -368,27 +370,6 @@ export class CandleStickGraph {
             this.drawMoves();
         }
 
-        if(false) {
-            const trixPoints = this.calculateTrix();
-            this.drawLines(trixPoints,this.colorInfo.blueColor);
-        }
-
-
-        /*
-
-            if (false) {
-              for (let i = 0; i < this.sma.length - 1; i++) {
-                let x1 = this.xToPixelCoords(this.sma[i].value);
-                let y1 = this.yToPixelCoords(this.sma[i].timestamp);
-                let x2 = this.xToPixelCoords(this.sma[i+1].value);
-                let y2 = this.yToPixelCoords(this.sma[i+1].timestamp);
-
-                this.drawLine(x1,y1,x2,y2,this.yellowColor)
-              };
-            }
-
-         */
-
         // draw mouse hover
         if (this.b_drawMouseOverlay) {
             // price line
@@ -400,6 +381,22 @@ export class CandleStickGraph {
             // data
             this.drawInfoLabel();
         }
+
+        if(this.options.wantStats){
+
+            try{
+                this.drawStatsLabel()
+            }catch (e) {
+                console.error(e);
+            }
+
+            try{
+                this.drawLogo()
+            }catch (e) {
+                console.error(e);
+            }
+        }
+
     }
 
     private calculateCandleWidth() {
@@ -1088,6 +1085,98 @@ export class CandleStickGraph {
                         }).reverse()
                 );
         this.fillPolygon(polygonPoints,color);
+    }
+
+    private formatDateNoHours = (date: Date) => {
+        let day:any = date.getDate();
+        if (day < 10) day = "0" + day;
+        let month:any = date.getMonth() + 1;
+        if (month < 10) month = "0" + month;
+        return day + "." + month + "." + date.getFullYear();
+    }
+
+    private drawStatsLabel() {
+        const preFont = this.context.font
+        const preColor = this.context.fillStyle;
+
+        const paddingLeft = 80;
+        const paddingTop = 60;
+        const textSize = (40)
+
+        this.context.font = CandleStickGraph.getFont(textSize,this.BASE_FONT);
+        this.context.fillStyle = this.colorInfo.whiteColor;
+
+        this.context.fillText(this.moves[0].currencyType + "/EUR", 10 + paddingLeft, textSize);
+
+        this.context.fillStyle = this.colorInfo.whiteColorTrasparent;
+        this.context.font = CandleStickGraph.getFont(textSize/2,this.BASE_FONT);
+        const day = new Date(this.candlesticks[Math.floor(this.candlesticks.length/2)].timestamp)
+        this.context.fillText(this.formatDateNoHours(day), 10 + paddingLeft, textSize + textSize/2);
+
+        this.context.fillStyle = preColor;
+        this.context.font = preFont
+    }
+
+    private drawLogo() {
+        const SVGIcons = {
+            "logo_only_wave_black.svg": {
+                draw: function (ctx) {
+                    ctx.save();
+                    ctx.strokeStyle = "rgba(0,0,0,0)";
+                    ctx.miterLimit = 4;
+                    ctx.font = "15px ''";
+                    ctx.font = "   15px ''";
+                    ctx.translate(0.5540540540540562, 0);
+                    ctx.scale(0.5675675675675675, 0.5675675675675675);
+                    ctx.save();
+                    ctx.fillStyle = "#fff";
+                    ctx.strokeStyle = "rgba(0,0,0,0)";
+                    ctx.font = "   15px ''";
+                    ctx.beginPath();
+                    ctx.moveTo(3.468657, 112);
+                    ctx.bezierCurveTo(4.020682, 110.817299, 4.825206, 109.280014, 6.094991, 108.505936);
+                    ctx.bezierCurveTo(21.296396, 99.238838, 34.968487, 88.210617, 44.995117, 73.342888);
+                    ctx.bezierCurveTo(50.24588, 65.556938, 53.777756, 56.854958, 53.971645, 47.214466);
+                    ctx.bezierCurveTo(54.098431, 40.910656, 49.403709, 36.394333, 43.021671, 35.966431);
+                    ctx.bezierCurveTo(32.913063, 35.288681, 23.390165, 37.276749, 13.563206, 42.203903);
+                    ctx.bezierCurveTo(16.78842, 31.64435, 20.66403, 22.60828, 28.800495, 15.462938);
+                    ctx.bezierCurveTo(35.724667, 9.382215, 43.249119, 5.420638, 52.264214, 3.928263);
+                    ctx.bezierCurveTo(61.730152, 2.361255, 71.043755, 2.495655, 80.439186, 4.763796);
+                    ctx.bezierCurveTo(95.638657, 8.433086, 108.042816, 16.535461, 118.391975, 27.9454);
+                    ctx.bezierCurveTo(127.008179, 37.444775, 132.411224, 48.666054, 134.99324, 61.223808);
+                    ctx.bezierCurveTo(138.522568, 78.388939, 135.801132, 94.988892, 130.683777, 111.666382);
+                    ctx.bezierCurveTo(88.645775, 112, 46.291542, 112, 3.468657, 112);
+                    ctx.moveTo(35.521973, 17.985134);
+                    ctx.bezierCurveTo(31.913422, 22.007553, 28.304873, 26.029974, 24.611584, 30.146849);
+                    ctx.bezierCurveTo(31.886415, 29.730671, 38.266277, 28.570263, 44.471703, 29.181328);
+                    ctx.bezierCurveTo(56.280746, 30.344191, 61.625313, 38.039322, 60.023434, 49.94173);
+                    ctx.bezierCurveTo(59.939613, 50.564533, 60.156376, 51.227787, 60.445763, 53.655109);
+                    ctx.bezierCurveTo(63.584568, 50.26371, 65.973213, 47.883102, 68.131683, 45.309452);
+                    ctx.bezierCurveTo(72.790947, 39.753975, 76.516441, 40.059505, 80.033485, 46.463547);
+                    ctx.bezierCurveTo(81.581734, 49.282703, 82.759308, 52.355904, 84.644165, 54.91711);
+                    ctx.bezierCurveTo(85.506744, 56.089203, 87.645317, 56.620827, 89.262398, 56.755348);
+                    ctx.bezierCurveTo(89.741348, 56.795193, 90.919563, 54.485046, 90.90345, 53.263275);
+                    ctx.bezierCurveTo(90.858521, 49.856037, 89.930351, 46.42281, 90.183434, 43.06255);
+                    ctx.bezierCurveTo(90.351166, 40.835518, 91.389603, 37.979366, 93.041145, 36.719131);
+                    ctx.bezierCurveTo(95.616463, 34.753994, 98.297409, 36.349041, 99.967766, 38.931087);
+                    ctx.bezierCurveTo(102.061996, 42.168354, 103.658569, 45.787243, 106.09317, 48.724934);
+                    ctx.bezierCurveTo(107.897293, 50.901863, 110.776886, 53.75631, 113.032768, 53.634323);
+                    ctx.bezierCurveTo(116.71669, 53.435123, 117.701836, 49.508595, 118.018204, 45.958389);
+                    ctx.bezierCurveTo(118.623749, 39.16328, 115.103226, 33.990963, 110.868752, 29.535463);
+                    ctx.bezierCurveTo(102.017853, 20.222555, 91.340195, 13.894811, 78.653564, 10.890461);
+                    ctx.bezierCurveTo(63.46563, 7.293773, 49.090187, 7.807244, 35.521973, 17.985134);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.restore();
+                    ctx.restore();
+                }
+
+            }
+        };
+        for(const name in SVGIcons){
+           SVGIcons[name].draw(this.context)
+        }
     }
 }
 
