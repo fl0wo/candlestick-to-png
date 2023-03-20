@@ -625,7 +625,8 @@ export class CandleStickGraph {
             type:move.type,
             cryptoValue:move.cryptoValue ? move.cryptoValue : cryptoValue,
             currencyType:move.currencyType,
-            profitPercOverride: move.profitPercOverride
+            profitPercOverride: move.profitPercOverride,
+            baseType: move.baseType
         });
         return this;
     }
@@ -1116,7 +1117,12 @@ export class CandleStickGraph {
         this.context.font = CandleStickGraph.getFont(textSize,this.BASE_FONT);
         this.context.fillStyle = this.colorInfo.whiteColor;
 
-        this.context.fillText(this.moves[0].currencyType + "/EUR", 10 + paddingLeft, textSize);
+        const baseType =
+            this.moves[0].baseType ?? 'USD'
+
+        this.context.fillText(
+            `${this.moves[0].currencyType}/${baseType}`
+            , 10 + paddingLeft, textSize);
 
         this.context.fillStyle = this.colorInfo.whiteColorTrasparent;
         this.context.font = CandleStickGraph.getFont(textSize/2,this.BASE_FONT);
@@ -1196,6 +1202,7 @@ class MoveTrade {
     cryptoValue:number=0
     currencyType:string=''
     profitPercOverride:number|undefined;
+    baseType:string|undefined;
 }
 
 class Drop{

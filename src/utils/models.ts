@@ -4,6 +4,7 @@ export interface Move {
     cryptoValue?:number;
     currencyType:string;
     profitPercOverride?:number;
+    baseType:string|undefined;
 }
 
 export interface Drop{

@@ -7,13 +7,40 @@ import {LamboCandle, MoveType} from "../src/utils/models";
 import {fetchCandles} from "./fetch-candles-util";
 import fs from "fs";
 
+export function resizeCandlesBasedOnMaxNCandle(myCandles: Array<LamboCandle>, resizeDataOnMaxCandles: number) {
+
+    if (resizeDataOnMaxCandles<=1 || resizeDataOnMaxCandles>=myCandles.length) {
+        return myCandles;
+    }
+
+    const skipDelta = Math.ceil(myCandles.length/resizeDataOnMaxCandles);
+
+    const skippedArray = myCandles
+        .filter((value, index, ar) =>
+            (index % skipDelta == 0)
+        )
+
+    if (skippedArray && myCandles && skippedArray[skippedArray.length-1]!=myCandles[myCandles.length-1]) {
+        return [...skippedArray, (myCandles[myCandles.length-1])];
+    }
+
+    return skippedArray;
+}
+
 async function testFetch(ticker: string): Promise<CandleStick[]> {
 
-    const allCandles:LamboCandle[] = (await fetchCandles(ticker,daysBefore(new Date(),0.1).getTime()))
+    const allCandles:LamboCandle[] = (await fetchCandles(
+        ticker,
+        daysBefore(new Date(),0.6).getTime()))
         .data
         .body
 
-    return allCandles.map((candle)=>{
+    const resizedCandles = resizeCandlesBasedOnMaxNCandle(
+        allCandles,
+        200
+    )
+
+    return resizedCandles.map((candle)=>{
         const x:CandleStick = {
             close: candle.candle.close,
             high: candle.candle.high,
@@ -31,12 +58,15 @@ const init = async () => {
         {
             currencyType: 'BTC',
             timestamp: daysBefore(new Date(),0.08).getTime(),
-            type: MoveType.BUY
+            type: MoveType.BUY,
+            baseType:'CICCIO'
+
         },{
             currencyType: 'BTC',
             timestamp: daysBefore(new Date(),0.02).getTime(),
             type: MoveType.SELL,
-            profitPercOverride: 69.69
+            profitPercOverride: 69.69,
+            baseType:'CICCIO'
         }]
 
     const options:Partial<CandleStickGraphOptions> = {
