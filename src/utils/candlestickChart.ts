@@ -422,7 +422,7 @@ export class CandleStickGraph {
     }
 
     private drawMoves() {
-        this.getIncreaseMsg = function (tradeBuy, tradeSell) {
+        this.getIncreaseMsg = function (tradeBuy:MoveTrade, tradeSell:MoveTrade) {
             function twoDecimalsOf(number: number) {
                 // @ts-ignore
                 return number.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0];
@@ -431,6 +431,10 @@ export class CandleStickGraph {
             let from = (tradeBuy.cryptoValue);
             let to = (tradeSell.cryptoValue);
             let diffPercentage = twoDecimalsOf(100 * ((to - from) / (from)));
+
+            if(tradeSell.profitPercOverride) {
+                diffPercentage = twoDecimalsOf(tradeSell.profitPercOverride)
+            }
 
             return /*twoDecimalsOf(from) + "-" + twoDecimalsOf(to) + " -> " + */ diffPercentage +
                 "% " + ((from > to) ? "down" : "up");
@@ -473,12 +477,16 @@ export class CandleStickGraph {
                     this.rightAxis.x2,this.rightAxis.y2
                 );
 
-                if (leftIntersect !== false) {
-                    this.drawRectangleWithText((xSell + leftIntersect.x)/2, (ySell + leftIntersect.y)/2,
-                        this.getIncreaseMsg(this.moves[i-1],this.moves[i]));
-                } else if (rightIntersect !== false) {
-                    this.drawRectangleWithText((xBuy + rightIntersect.x)/2, (yBuy + rightIntersect.y)/2,
-                        this.getIncreaseMsg(this.moves[i-1],this.moves[i]));
+                if (!!leftIntersect) {
+                    if (typeof leftIntersect !== "boolean") {
+                        this.drawRectangleWithText((xSell + leftIntersect.x) / 2, (ySell + leftIntersect.y) / 2,
+                            this.getIncreaseMsg(this.moves[i - 1], this.moves[i]));
+                    }
+                } else if (!!rightIntersect) {
+                    if (typeof rightIntersect !== "boolean") {
+                        this.drawRectangleWithText((xBuy + rightIntersect.x) / 2, (yBuy + rightIntersect.y) / 2,
+                            this.getIncreaseMsg(this.moves[i - 1], this.moves[i]));
+                    }
                 }else{
                     this.drawRectangleWithText((xBuy + xSell)/2, (yBuy + ySell)/2,
                         this.getIncreaseMsg(this.moves[i-1],this.moves[i]));
@@ -606,6 +614,7 @@ export class CandleStickGraph {
     public addTrade(move:Move) {
 
         const goalTs = move.timestamp;
+
         const closestOnTs = this.candlesticks.reduce((prev, curr)=> {
             return (Math.abs(curr.timestamp - goalTs) < Math.abs(prev.timestamp - goalTs) ? curr : prev);
         });
@@ -615,7 +624,8 @@ export class CandleStickGraph {
             timestamp:move.timestamp,
             type:move.type,
             cryptoValue:move.cryptoValue ? move.cryptoValue : cryptoValue,
-            currencyType:move.currencyType
+            currencyType:move.currencyType,
+            profitPercOverride: move.profitPercOverride
         });
         return this;
     }
@@ -1118,9 +1128,9 @@ export class CandleStickGraph {
     }
 
     private drawLogo() {
-        const SVGIcons = {
+        const SVGIcons:any = {
             "logo_only_wave_black.svg": {
-                draw: function (ctx) {
+                draw: (ctx:any) => {
                     ctx.save();
                     ctx.strokeStyle = "rgba(0,0,0,0)";
                     ctx.miterLimit = 4;
@@ -1175,7 +1185,7 @@ export class CandleStickGraph {
             }
         };
         for(const name in SVGIcons){
-           SVGIcons[name].draw(this.context)
+           SVGIcons[name]?.draw(this.context)
         }
     }
 }
@@ -1185,6 +1195,7 @@ class MoveTrade {
     type:string=''
     cryptoValue:number=0
     currencyType:string=''
+    profitPercOverride:number|undefined;
 }
 
 class Drop{

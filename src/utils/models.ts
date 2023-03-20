@@ -3,6 +3,7 @@ export interface Move {
     timestamp:number;
     cryptoValue?:number;
     currencyType:string;
+    profitPercOverride?:number;
 }
 
 export interface Drop{

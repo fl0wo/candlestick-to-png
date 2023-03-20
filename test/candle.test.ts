@@ -35,7 +35,8 @@ const init = async () => {
         },{
             currencyType: 'BTC',
             timestamp: daysBefore(new Date(),0.02).getTime(),
-            type: MoveType.SELL
+            type: MoveType.SELL,
+            profitPercOverride: 69.69
         }]
 
     const options:Partial<CandleStickGraphOptions> = {
