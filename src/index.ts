@@ -2,7 +2,7 @@ import {CandleStick, CandleStickColors, CandleStickGraph, CandleStickGraphOption
 import * as fs from 'fs'
 
 import {createCanvas} from 'canvas'
-import {Move} from "./utils/models";
+import {Candle, LamboCandle, Move} from "./utils/models";
 
 function executeOnCanvas(
     createCanvas:any,
@@ -114,6 +114,36 @@ const candleStickToPNG = (
     return null;
 }
 
+const resizeCandlesBasedOnMaxNCandle = (myCandles: Array<LamboCandle>, resizeDataOnMaxCandles: number) :Candle[] => {
+
+    const newCandles: Candle[] = [];
+
+    const groupSize = Math.floor(myCandles.length/resizeDataOnMaxCandles)
+
+    for (let i = 0; i < myCandles.length; i += groupSize) {
+        const group = myCandles.slice(i, i + groupSize);
+        if (group.length > 0) {
+            const newCandle:Candle = {
+                base: group[0].candle.base,
+                counter: group[0].candle.counter,
+                openTimeInISO: group[0].candle.openTimeInISO,
+                openTimeInMillis: group[0].candle.openTimeInMillis,
+                productId: group[0].candle.productId,
+                sizeInMillis: group[0].candle.sizeInMillis,
+                open: group[0].candle.open,
+                high: Math.max(...group.map(candle => candle.candle.high)),
+                low: Math.min(...group.map(candle => candle.candle.low)),
+                close: group[group.length - 1].candle.close,
+                volume: group.reduce((acc, candle) => acc + candle.candle.volume, 0)
+            };
+            newCandles.push(newCandle);
+        }
+    }
+
+    return newCandles;
+}
+
 export {
-    candleStickToPNG
+    candleStickToPNG,
+    resizeCandlesBasedOnMaxNCandle
 }

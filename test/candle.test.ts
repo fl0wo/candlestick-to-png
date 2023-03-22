@@ -1,51 +1,32 @@
 // @ts-nocheck
 
 import {CandleStick, CandleStickColors, CandleStickGraphOptions} from "../src/utils/candlestickChart";
-import {candleStickToPNG} from "../src";
+import {candleStickToPNG, resizeCandlesBasedOnMaxNCandle} from "../src";
 import {daysBefore} from "../src/utils/general";
-import {LamboCandle, MoveType} from "../src/utils/models";
+import {Candle, LamboCandle, MoveType} from "../src/utils/models";
 import {fetchCandles} from "./fetch-candles-util";
 import fs from "fs";
-
-export function resizeCandlesBasedOnMaxNCandle(myCandles: Array<LamboCandle>, resizeDataOnMaxCandles: number) {
-
-    if (resizeDataOnMaxCandles<=1 || resizeDataOnMaxCandles>=myCandles.length) {
-        return myCandles;
-    }
-
-    const skipDelta = Math.ceil(myCandles.length/resizeDataOnMaxCandles);
-
-    const skippedArray = myCandles
-        .filter((value, index, ar) =>
-            (index % skipDelta == 0)
-        )
-
-    if (skippedArray && myCandles && skippedArray[skippedArray.length-1]!=myCandles[myCandles.length-1]) {
-        return [...skippedArray, (myCandles[myCandles.length-1])];
-    }
-
-    return skippedArray;
-}
+import {all} from "axios";
 
 async function testFetch(ticker: string): Promise<CandleStick[]> {
 
     const allCandles:LamboCandle[] = (await fetchCandles(
         ticker,
-        daysBefore(new Date(),0.6).getTime()))
+        daysBefore(new Date(),1).getTime()))
         .data
         .body
 
-    const resizedCandles = resizeCandlesBasedOnMaxNCandle(
+    const resizedCandles:Candle[] = resizeCandlesBasedOnMaxNCandle(
         allCandles,
-        200
+        Math.min(100,allCandles.length)
     )
 
     return resizedCandles.map((candle)=>{
         const x:CandleStick = {
-            close: candle.candle.close,
-            high: candle.candle.high,
-            low: candle.candle.low,
-            open: candle.candle.open,
+            close: candle.close,
+            high: candle.high,
+            low: candle.low,
+            open: candle.open,
             timestamp: candle.openTimeInMillis
         }
         return x;
@@ -57,13 +38,13 @@ const init = async () => {
     const moves = [
         {
             currencyType: 'BTC',
-            timestamp: daysBefore(new Date(),0.08).getTime(),
+            timestamp: daysBefore(new Date(),0.8).getTime(),
             type: MoveType.BUY,
             baseType:'CICCIO'
 
         },{
             currencyType: 'BTC',
-            timestamp: daysBefore(new Date(),0.02).getTime(),
+            timestamp: daysBefore(new Date(),0.2).getTime(),
             type: MoveType.SELL,
             profitPercOverride: 69.69,
             baseType:'CICCIO'
