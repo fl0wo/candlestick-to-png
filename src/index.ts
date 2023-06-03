@@ -145,9 +145,13 @@ const resizeCandlesBasedOnMaxNCandle = (myCandles: Array<LamboCandle>, resizeDat
     return newCandles;
 }
 
-const fetchCandles = async (asset: string, startMillis: number, endMillis?:number):Promise<CandleChartResult[]> => {
+const fetchCandles = async (asset: string, startMillis: number, endMillis:number):Promise<CandleChartResult[]> => {
+
+    const hoursDuration = (endMillis - startMillis) / 1000 / 60 / 60;
+    const desiredIntervalString = hoursDuration > 24 ? '1h' : '15m';
+
     return await client.candles({
-        interval: '15m', // <-- calculate based on the duration
+        interval: desiredIntervalString, // <-- calculate based on the duration
         symbol: 'ETHBTC',
         startTime: startMillis,
         endTime: endMillis
