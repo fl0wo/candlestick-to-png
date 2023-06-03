@@ -1,8 +1,10 @@
 import {CandleStick, CandleStickColors, CandleStickGraph, CandleStickGraphOptions} from "./utils/candlestickChart";
 import * as fs from 'fs'
-
+// MOVE THE FOLLOWING LINE TO "IN-CALL" FUNCTION
 import {createCanvas} from 'canvas'
 import {Candle, LamboCandle, Move} from "./utils/models";
+import Binance, {CandleChartResult} from 'binance-api-node'
+const client = Binance()
 
 function executeOnCanvas(
     createCanvas:any,
@@ -143,7 +145,17 @@ const resizeCandlesBasedOnMaxNCandle = (myCandles: Array<LamboCandle>, resizeDat
     return newCandles;
 }
 
+const fetchCandles = async (asset: string, startMillis: number):Promise<CandleChartResult[]> => {
+    return await client.candles({
+        interval: '15m', // <-- calculate based on the duration
+        symbol: 'ETHBTC',
+        startTime: startMillis,
+        endTime: startMillis + 1000 * 60 * 60 * 24
+    });
+}
+
 export {
     candleStickToPNG,
-    resizeCandlesBasedOnMaxNCandle
+    resizeCandlesBasedOnMaxNCandle,
+    fetchCandles
 }

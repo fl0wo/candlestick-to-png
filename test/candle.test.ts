@@ -1,27 +1,38 @@
 // @ts-nocheck
 
 import {CandleStick, CandleStickColors, CandleStickGraphOptions} from "../src/utils/candlestickChart";
-import {candleStickToPNG, resizeCandlesBasedOnMaxNCandle} from "../src";
+import {candleStickToPNG} from "../src";
 import {daysBefore} from "../src/utils/general";
-import {Candle, LamboCandle, MoveType} from "../src/utils/models";
+import {LamboCandle, MoveType} from "../src/utils/models";
 import {fetchCandles} from "./fetch-candles-util";
-import fs from "fs";
-import {all} from "axios";
+import * as fs from "fs";
+import {CandleChartResult} from "binance-api-node";
 
 async function testFetch(ticker: string): Promise<CandleStick[]> {
 
-    const allCandles:LamboCandle[] = (await fetchCandles(
+    const allCandles:CandleChartResult[] = (await fetchCandles(
         ticker,
-        daysBefore(new Date(),1).getTime()))
-        .data
-        .body
+        daysBefore(new Date(),1).getTime()
+    ))
 
-    const resizedCandles:Candle[] = resizeCandlesBasedOnMaxNCandle(
-        allCandles,
-        Math.min(100,allCandles.length)
-    )
+    const lamboCandles:LamboCandle[] = allCandles.map((candle)=>{
+        const x:LamboCandle = {
+            close: parseFloat(candle.close),
+            high: parseFloat(candle.high),
+            low: parseFloat(candle.low),
+            open: parseFloat(candle.open),
+            openTimeInMillis: candle.openTime,
+            volume: parseFloat(candle.volume)
+        }
+        return x;
+    });
 
-    return resizedCandles.map((candle)=>{
+    // const resizedCandles:Candle[] = resizeCandlesBasedOnMaxNCandle(
+    //     lamboCandles,
+    //     Math.min(100,lamboCandles.length)
+    // )
+
+    return lamboCandles.map((candle)=>{
         const x:CandleStick = {
             close: candle.close,
             high: candle.high,
