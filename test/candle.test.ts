@@ -80,18 +80,18 @@ const init = async () => {
 
     const colorsDarkTheme:CandleStickColors = {
         gridColor: "#e2e2e2",
-        gridTextColor: "#545454",
+        gridTextColor: "#a0a0a0",
         mouseHoverBackgroundColor: "#f5f5f5",
         lineColor: "#a0a0a0",
         mouseHoverTextColor: "#000000",
-        greenColor: "#2ecc71",
-        redColor: "#e74c3c",
+        greenColor: "#C1FF72",
+        redColor: "#CB6CE6",
         greenHoverColor: "#27ae60",
         redHoverColor: "#c0392b",
         debugLineColor: "#D11538",
         growLineColor: "#a0a0a0",
-        blackColor: "#ffffff",
-        whiteColor:"#000",
+        blackColor: "#131422",
+        whiteColor:"#ffffff",
         yellowColor: "#f9ca24",
         purpleColor: "#9b59b6",
         purpleColorTransparent:"rgba(155,89,182,0.21)",
@@ -102,7 +102,9 @@ const init = async () => {
         redAreaColor:'rgba(231,76,60,0.27)',
         greenAreaColorIntens:'rgba(46,204,113,0.57)',
         redAreaColorIntes:'rgba(231,76,60,0.57)',
-        whiteColorMoreTrasparent: 'rgba(255,255,255,0.25)'
+        whiteColorMoreTrasparent: 'rgba(255,255,255,0.25)',
+        logoColor: 'white'
+
     }
 
     const buffer = candleStickToPNG(

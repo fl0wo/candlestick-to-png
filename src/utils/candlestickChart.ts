@@ -52,6 +52,7 @@ export interface CandleStickColors{
      redAreaColorIntes: string;
 
      whiteColorMoreTrasparent: string;
+    logoColor: string;
 }
 
 class CandleStickPoint{
@@ -98,30 +99,31 @@ export class CandleStickGraph {
     }
 
     private colorInfo:CandleStickColors = {
-        gridColor: "rgb(24,24,24)",
-        gridTextColor: "#ffffff",
-        mouseHoverBackgroundColor: "#84817a",
-        lineColor: "rgba(238,238,238,0.34)",
+        gridColor: "#e2e2e2",
+        gridTextColor: "#a0a0a0",
+        mouseHoverBackgroundColor: "#f5f5f5",
+        lineColor: "#a0a0a0",
         mouseHoverTextColor: "#000000",
-        greenColor: "#77E15E",
-        redColor: "#E94334FF",
-        greenHoverColor: "#77E15E",
-        redHoverColor: "#E94334FF",
+        greenColor: "#C1FF72",
+        redColor: "#CB6CE6",
+        greenHoverColor: "#27ae60",
+        redHoverColor: "#c0392b",
         debugLineColor: "#D11538",
-        growLineColor: "rgba(255,255,255,0.67)",
-        blackColor: "#000000",
-        whiteColor:"#eeeeee",
+        growLineColor: "#a0a0a0",
+        blackColor: "#131422",
+        whiteColor:"#ffffff",
         yellowColor: "#f9ca24",
-        purpleColor: "#e056fd",
-        purpleColorTransparent:"rgba(217,86,253,0.21)",
-        yellowColorTransparent:"rgba(253,206,86,0.2)",
+        purpleColor: "#9b59b6",
+        purpleColorTransparent:"rgba(155,89,182,0.21)",
+        yellowColorTransparent:"rgba(249,202,36,0.2)",
         whiteColorTrasparent: 'rgba(255,255,255,0.55)',
-        blueColor:'#4ac4e0',
-        greenAreaColor:'rgba(119,255,1,0.27)',
-        redAreaColor:'rgba(255,1,22,0.27)',
-        greenAreaColorIntens:'rgba(119,255,1,0.57)',
-        redAreaColorIntes:'rgba(255,1,22,0.57)',
+        blueColor:'#3498db',
+        greenAreaColor:'rgba(46,204,113,0.27)',
+        redAreaColor:'rgba(231,76,60,0.27)',
+        greenAreaColorIntens:'rgba(46,204,113,0.57)',
+        redAreaColorIntes:'rgba(231,76,60,0.57)',
         whiteColorMoreTrasparent: 'rgba(255,255,255,0.25)',
+        logoColor: 'white'
     }
 
     private width!: number;
@@ -562,10 +564,16 @@ export class CandleStickGraph {
                 this.drawLine(xOnGraph, yDownOnGraph, xOnGraph, yLineHigh, color);
                 this.drawLine(xOnGraph, yTopOnGraph, xOnGraph, yLineLow, color);
 
-            } else {
-                this.drawLine(xOnGraph, yLineLow, xOnGraph, yLineHigh, color);
+                // fill rect here as well
                 this.fillRect(xOnGraph - Math.floor(this.candleWidth / 2), yTopOnGraph,
                     this.candleWidth, height, color);
+
+            } else {
+                this.drawRect(xOnGraph - Math.floor(this.candleWidth / 2), yTopOnGraph,
+                    this.candleWidth, height, color);
+
+                this.drawLine(xOnGraph, yTopOnGraph, xOnGraph, yLineHigh, color);
+                this.drawLine(xOnGraph, yDownOnGraph, xOnGraph, yLineLow, color);
             }
         }
     }
@@ -1145,7 +1153,7 @@ export class CandleStickGraph {
                     ctx.translate(0.5540540540540562, 0);
                     ctx.scale(0.5675675675675675, 0.5675675675675675);
                     ctx.save();
-                    ctx.fillStyle = "#000";
+                    ctx.fillStyle = this.colorInfo.logoColor;
                     ctx.strokeStyle = "rgba(0,0,0,0)";
                     ctx.font = "   15px ''";
                     ctx.beginPath();

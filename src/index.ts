@@ -60,6 +60,7 @@ function executeOnCanvas(
         greenAreaColorIntens:'rgba(119,255,1,0.57)',
         redAreaColorIntes:'rgba(255,1,22,0.57)',
         whiteColorMoreTrasparent: 'rgba(255,255,255,0.25)',
+        logoColor: 'white',
         ...candleChartColors
     }
 
