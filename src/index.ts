@@ -1,9 +1,10 @@
 import {CandleStick, CandleStickColors, CandleStickGraph, CandleStickGraphOptions} from "./utils/candlestickChart";
 import * as fs from 'fs'
 // MOVE THE FOLLOWING LINE TO "IN-CALL" FUNCTION
-import {createCanvas} from 'canvas'
-import {Candle, LamboCandle, Move} from "./utils/models";
+
+import {Move} from "./utils/models";
 import Binance, {CandleChartResult} from 'binance-api-node'
+import {createCanvas} from "@napi-rs/canvas";
 const client = Binance()
 
 function executeOnCanvas(
@@ -91,6 +92,7 @@ function executeOnCanvas(
  * @param moves
  * @param candleStickGraphOptions
  * @param candleChartColors
+ * @param customCanvas
  * @param fileName
  */
 const candleStickToPNG = (
@@ -98,11 +100,12 @@ const candleStickToPNG = (
     moves:Move[] = [],
     candleStickGraphOptions:Partial<CandleStickGraphOptions> = {},
     candleChartColors:Partial<CandleStickColors> = {},
+    customCanvas2?:any,
     fileName?:string
 ) =>{
     try{
         return executeOnCanvas(
-            createCanvas,
+            customCanvas2 ? (a:any,b:any)=>customCanvas2 : createCanvas,
             candleArray,
             moves,
             candleStickGraphOptions,
@@ -116,50 +119,71 @@ const candleStickToPNG = (
     return null;
 }
 
-const resizeCandlesBasedOnMaxNCandle = (myCandles: Array<LamboCandle>, resizeDataOnMaxCandles: number) :Candle[] => {
-
-    const newCandles: Candle[] = [];
-
-    const groupSize = Math.floor(myCandles.length/resizeDataOnMaxCandles)
-
-    for (let i = 0; i < myCandles.length; i += groupSize) {
-        const group = myCandles.slice(i, i + groupSize);
-        if (group.length > 0) {
-            const newCandle:Candle = {
-                base: group[0].candle.base,
-                counter: group[0].candle.counter,
-                openTimeInISO: group[0].candle.openTimeInISO,
-                openTimeInMillis: group[0].candle.openTimeInMillis,
-                productId: group[0].candle.productId,
-                sizeInMillis: group[0].candle.sizeInMillis,
-                open: group[0].candle.open,
-                high: Math.max(...group.map(candle => candle.candle.high)),
-                low: Math.min(...group.map(candle => candle.candle.low)),
-                close: group[group.length - 1].candle.close,
-                volume: group.reduce((acc, candle) => acc + candle.candle.volume, 0)
-            };
-            newCandles.push(newCandle);
-        }
-    }
-
-    return newCandles;
-}
-
 const fetchCandles = async (asset: string, startMillis: number, endMillis:number):Promise<CandleChartResult[]> => {
 
-    const hoursDuration = (endMillis - startMillis) / 1000 / 60 / 60;
-    const desiredIntervalString = hoursDuration > 24 ? '1h' : '15m';
+    const desiredIntervalString = calculateIntervalBasedOnDuration(startMillis, endMillis);
 
     return await client.candles({
         interval: desiredIntervalString, // <-- calculate based on the duration
-        symbol: 'ETHBTC',
+        symbol: asset+'USDT',
         startTime: startMillis,
         endTime: endMillis
     });
 }
 
+function calculateIntervalBasedOnDuration(startMillis: number, endMillis: number) {
+    const minutesDuration = (endMillis - startMillis) / 1000 / 60;
+    const hoursDuration = minutesDuration / 60;
+
+    if(minutesDuration < 60) {
+        return '1m';
+    }
+    if(hoursDuration < 8) {
+        return '5m';
+    }
+    if(hoursDuration < 15) {
+        return '15m';
+    }
+    if(hoursDuration < 20) {
+        return '30m';
+    }
+    if(hoursDuration < 1.5 * 24) {
+        return '1h';
+    }
+    if(hoursDuration < 24 * 2) {
+        return '1h';
+    }
+    if(hoursDuration < 24 * 3) {
+        return '1h';
+    }
+    if(hoursDuration < 24 * 4) {
+        return '2h';
+    }
+    if(hoursDuration < 24 * 6) {
+        return '4h';
+    }
+    if(hoursDuration < 24 * 8) {
+        return '4h';
+    }
+    if(hoursDuration < 24 * 12) {
+        return '6h';
+    }
+    if(hoursDuration < 24 * 60) {
+        return '8h';
+    }
+    if(hoursDuration < 24 * 90) {
+        return '12h';
+    }
+    if(hoursDuration < 24 * 365) {
+        return '1d';
+    }
+    if(hoursDuration < 24 * 3*365) {
+        return '3d';
+    }
+    return '1w'
+}
+
 export {
     candleStickToPNG,
-    resizeCandlesBasedOnMaxNCandle,
     fetchCandles
 }

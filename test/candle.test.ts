@@ -2,17 +2,17 @@
 
 import {CandleStick, CandleStickColors, CandleStickGraphOptions} from "../src/utils/candlestickChart";
 import {candleStickToPNG} from "../src";
-import {daysBefore} from "../src/utils/general";
 import {LamboCandle, MoveType} from "../src/utils/models";
-import {fetchCandles} from "./fetch-candles-util";
 import * as fs from "fs";
 import {CandleChartResult} from "binance-api-node";
+import {fetchCandles} from "../lib";
 
 async function testFetch(ticker: string): Promise<CandleStick[]> {
 
     const allCandles:CandleChartResult[] = (await fetchCandles(
         ticker,
-        daysBefore(new Date(),1).getTime()
+        new Date('2023-08-10').getTime(),
+        new Date('2023-08-29').getTime()
     ))
 
     const lamboCandles:LamboCandle[] = allCandles.map((candle)=>{
@@ -45,20 +45,19 @@ async function testFetch(ticker: string): Promise<CandleStick[]> {
 }
 
 const init = async () => {
-    const array = await testFetch('BTC')
+    const array = await testFetch('ETH')
     const moves = [
         {
-            currencyType: 'BTC',
-            timestamp: daysBefore(new Date(),0.8).getTime(),
+            currencyType: 'SOL',
+            timestamp: new Date('2023-08-10 16:02:20').getTime(),
             type: MoveType.BUY,
-            baseType:'CICCIO'
+            baseType:'USD'
 
         },{
-            currencyType: 'BTC',
-            timestamp: daysBefore(new Date(),0.2).getTime(),
+            currencyType: 'SOL',
+            timestamp:  new Date('2023-08-29 01:10:20').getTime(),
             type: MoveType.SELL,
-            profitPercOverride: 69.69,
-            baseType:'CICCIO'
+            baseType:'USD'
         }]
 
     const options:Partial<CandleStickGraphOptions> = {
@@ -81,7 +80,7 @@ const init = async () => {
 
     const colorsDarkTheme:CandleStickColors = {
         gridColor: "#e2e2e2",
-        gridTextColor: "#a0a0a0",
+        gridTextColor: "#545454",
         mouseHoverBackgroundColor: "#f5f5f5",
         lineColor: "#a0a0a0",
         mouseHoverTextColor: "#000000",
@@ -91,8 +90,8 @@ const init = async () => {
         redHoverColor: "#c0392b",
         debugLineColor: "#D11538",
         growLineColor: "#a0a0a0",
-        blackColor: "#000000",
-        whiteColor:"#ffffff",
+        blackColor: "#ffffff",
+        whiteColor:"#000",
         yellowColor: "#f9ca24",
         purpleColor: "#9b59b6",
         purpleColorTransparent:"rgba(155,89,182,0.21)",
@@ -113,7 +112,11 @@ const init = async () => {
         colorsDarkTheme
     );
 
-    fs.writeFileSync('./test3.png', buffer);
+    fs.writeFileSync('./candles.json', JSON.stringify(array));
+    fs.writeFileSync('./moves.json', JSON.stringify(moves));
+    fs.writeFileSync('./options.json', JSON.stringify(options));
+    fs.writeFileSync('./colors.json', JSON.stringify(colorsDarkTheme));
+    fs.writeFileSync('./buffer.png', buffer);
 }
 
 init()

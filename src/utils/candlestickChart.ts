@@ -589,7 +589,7 @@ export class CandleStickGraph {
         str = this.formatDate(new Date(this.xMouseHover));
         textWidth = this.context.measureText(str).width;
         this.fillRect(this.mousePosition.x - textWidth / 2 - 5, this.height - 20, textWidth + 10, 20, this.colorInfo.whiteColor);
-        this.context.fillStyle = this.colorInfo.blackColor;
+        this.context.fillStyle = this.colorInfo.gridTextColor;
         this.context.fillText(str, this.mousePosition.x - textWidth / 2, this.height - 5);
     }
 
@@ -1124,7 +1124,7 @@ export class CandleStickGraph {
             `${this.moves[0].currencyType}/${baseType}`
             , 10 + paddingLeft, textSize);
 
-        this.context.fillStyle = this.colorInfo.whiteColorTrasparent;
+        this.context.fillStyle = this.colorInfo.gridTextColor;
         this.context.font = CandleStickGraph.getFont(textSize/2,this.BASE_FONT);
         const day = new Date(this.candlesticks[Math.floor(this.candlesticks.length/2)].timestamp)
         this.context.fillText(this.formatDateNoHours(day), 10 + paddingLeft, textSize + textSize/2);
@@ -1145,7 +1145,7 @@ export class CandleStickGraph {
                     ctx.translate(0.5540540540540562, 0);
                     ctx.scale(0.5675675675675675, 0.5675675675675675);
                     ctx.save();
-                    ctx.fillStyle = "#fff";
+                    ctx.fillStyle = "#000";
                     ctx.strokeStyle = "rgba(0,0,0,0)";
                     ctx.font = "   15px ''";
                     ctx.beginPath();
