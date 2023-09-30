@@ -480,9 +480,9 @@ export class CandleStickGraph {
 
             let y = Math.max(TRIANGLE_SIZE, this.yToPixelCoords(this.moves[i].cryptoValue));
             if (this.moves[i].type === "buy") {
-                this.drawTriangleUp(x, y +TRIANGLE_SIZE, TRIANGLE_SIZE, this.colorInfo.whiteColor,'BUY');
+                this.drawTriangleUp(x, y +TRIANGLE_SIZE, TRIANGLE_SIZE, this.colorInfo.whiteColor);
             } else {
-                this.drawTriangleDown(x, y - TRIANGLE_SIZE , TRIANGLE_SIZE, this.colorInfo.whiteColor,'SELL');
+                this.drawTriangleDown(x, y - TRIANGLE_SIZE , TRIANGLE_SIZE, this.colorInfo.whiteColor);
             }
 
             if (i !== 0 && this.moves[i].type === "sell") {
