@@ -4,7 +4,7 @@ import * as fs from 'fs'
 
 import {Move} from "./utils/models";
 import Binance, {CandleChartResult} from 'binance-api-node'
-import {createCanvas} from "@napi-rs/canvas";
+import {createCanvas, GlobalFonts} from "@napi-rs/canvas";
 const client = Binance()
 
 function executeOnCanvas(
@@ -16,7 +16,9 @@ function executeOnCanvas(
     fileName?: string
 ) {
 
-    const canvas = createCanvas(800, 800)
+    const canvas = createCanvas(800, 800);
+    GlobalFonts.registerFromPath(`${__dirname}/fonts/gilroy/gilroy-bold-webfont.woff`,'gilroy-bold')
+    GlobalFonts.registerFromPath(`${__dirname}/fonts/gilroy/gilroy-semibold-webfont.woff`,'gilroy-semibold')
 
     const basicOptions:CandleStickGraphOptions = {
         granularity: 1,
@@ -32,6 +34,12 @@ function executeOnCanvas(
         zoomSpeed: 0,
         wantGrid: false,
         wantStats:true,
+        triangleSize:10,
+        lineWidth:1,
+        lineWidthGreen:1,
+        lineWidthRed:1,
+        wantSideMarksMove:false,
+        baseFontName:'gilroy-bold',
         ...candleStickGraphOptions
     }
 
@@ -146,40 +154,40 @@ function calculateIntervalBasedOnDuration(startMillis: number, endMillis: number
         return '15m';
     }
     if(hoursDuration < 20) {
-        return '30m';
+        return '15m';
     }
     if(hoursDuration < 1.5 * 24) {
-        return '1h';
+        return '15m';
     }
     if(hoursDuration < 24 * 2) {
-        return '1h';
+        return '15m';
     }
     if(hoursDuration < 24 * 3) {
-        return '1h';
+        return '30m';
     }
     if(hoursDuration < 24 * 4) {
-        return '2h';
+        return '1h';
     }
     if(hoursDuration < 24 * 6) {
-        return '4h';
+        return '2h';
     }
     if(hoursDuration < 24 * 8) {
-        return '4h';
+        return '2h';
     }
     if(hoursDuration < 24 * 12) {
-        return '6h';
+        return '4h';
     }
     if(hoursDuration < 24 * 60) {
-        return '8h';
+        return '6h';
     }
     if(hoursDuration < 24 * 90) {
-        return '12h';
+        return '8h';
     }
     if(hoursDuration < 24 * 365) {
-        return '1d';
+        return '12h';
     }
     if(hoursDuration < 24 * 3*365) {
-        return '3d';
+        return '1d';
     }
     return '1w'
 }

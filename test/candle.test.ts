@@ -11,8 +11,8 @@ async function testFetch(ticker: string): Promise<CandleStick[]> {
 
     const allCandles:CandleChartResult[] = (await fetchCandles(
         ticker,
-        new Date('2023-08-10').getTime(),
-        new Date('2023-08-29').getTime()
+        new Date('2023-03-10').getTime(),
+        new Date('2023-03-20').getTime()
     ))
 
     const lamboCandles:LamboCandle[] = allCandles.map((candle)=>{
@@ -48,17 +48,18 @@ const init = async () => {
     const array = await testFetch('ETH')
     const moves = [
         {
-            currencyType: 'SOL',
-            timestamp: new Date('2023-08-10 16:02:20').getTime(),
+            currencyType: 'ETH',
+            timestamp: new Date('2023-03-11 16:02:20').getTime(),
             type: MoveType.BUY,
             baseType:'USD'
 
         },{
-            currencyType: 'SOL',
-            timestamp:  new Date('2023-08-29 01:10:20').getTime(),
+            currencyType: 'ETH',
+            timestamp:  new Date('2023-03-19 01:10:20').getTime(),
             type: MoveType.SELL,
             baseType:'USD'
         }]
+
 
     const options:Partial<CandleStickGraphOptions> = {
 
@@ -76,6 +77,16 @@ const init = async () => {
         wantGrid:false,
 
         wantStats: true,
+
+        triangleSize: 20,
+        lineWidth: 1,
+
+        lineWidthGreen: 1,
+        lineWidthRed: 2,
+
+        wantSideMarksMove:true,
+        baseFontName:'gilroy-semibold',
+
     }
 
     const colorsDarkTheme:CandleStickColors = {
@@ -104,7 +115,6 @@ const init = async () => {
         redAreaColorIntes:'rgba(231,76,60,0.57)',
         whiteColorMoreTrasparent: 'rgba(255,255,255,0.25)',
         logoColor: 'white'
-
     }
 
     const buffer = candleStickToPNG(

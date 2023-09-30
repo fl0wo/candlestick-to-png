@@ -16,6 +16,12 @@ export interface CandleStickGraphOptions{
     wantBollingerBands: boolean;
     wantGrid:boolean;
     wantStats:boolean;
+    triangleSize:number; // in pxl (default 10)
+    lineWidth:number; // in pxl (default 1)
+    lineWidthGreen:number; // in pxl (default 1)
+    lineWidthRed:number; // in pxl (default 2)
+    wantSideMarksMove:boolean,
+    baseFontName:string
 }
 
 class CandleStickDrag{
@@ -79,6 +85,12 @@ export class CandleStickGraph {
         wantBollingerBands:true,
         wantGrid:true,
         wantStats:false,
+        triangleSize:10,
+        lineWidth:1,
+        lineWidthGreen:1,
+        lineWidthRed:1,
+        wantSideMarksMove:false,
+        baseFontName:'Arial'
     }
 
     private canvas!: HTMLCanvasElement;
@@ -154,7 +166,6 @@ export class CandleStickGraph {
 
     private readonly GENERAL_FONT_SIZE = 12;
     private readonly TEXT_FONT_SIZE = 20;
-    private readonly BASE_FONT = "Montserrat";
 
     constructor(options: CandleStickGraphOptions | undefined) {
         this.apply(options)
@@ -245,7 +256,7 @@ export class CandleStickGraph {
         this.yMouseHover = 0;
         this.hoveredCandlestickID = 0;
 
-        this.context.font = CandleStickGraph.getFont(this.GENERAL_FONT_SIZE,this.BASE_FONT);
+        this.context.font = CandleStickGraph.getFont(this.GENERAL_FONT_SIZE,this.options.baseFontName);
 
         this.leftAxis = {
             x1: 0,
@@ -415,13 +426,31 @@ export class CandleStickGraph {
 
     private drawRectangleWithText(textX: number, textY: number, str: any) {
         let oldFont = this.context.font;
-        this.context.font = CandleStickGraph.getFont((this.TEXT_FONT_SIZE+2),this.BASE_FONT);
+        this.context.font = CandleStickGraph.getFont((this.TEXT_FONT_SIZE+2),this.options.baseFontName);
         const textWidth = this.context.measureText(str).width;
-        this.fillRect(textX - textWidth / 2 - 10, textY - 20, textWidth + 20, 40, this.colorInfo.whiteColor);
+        this.fillRectRounded(
+            textX - textWidth / 2 - 10,
+            textY - 15,
+            textWidth + 20,
+            25,
+            this.colorInfo.whiteColor,
+            25/2
+        );
         this.context.fillStyle = this.colorInfo.blackColor;
-        this.context.fillText(str, textX - textWidth / 2, textY + 5);
+        this.context.fillText(str, textX - textWidth / 2, textY + (10)/2);
         this.context.font = oldFont;
     }
+
+    private drawSmallRectangleWithText(textX: number, textY: number, str: any, bgColor:string = this.colorInfo.whiteColor, textColor:string = this.colorInfo.blackColor) {
+        let oldFont = this.context.font;
+        this.context.font = CandleStickGraph.getFont((this.GENERAL_FONT_SIZE * 1.5),this.options.baseFontName);
+        const textWidth = this.context.measureText(str).width;
+        this.fillRect(textX - textWidth - 5, textY - 15, textWidth + 10, 30, bgColor ?? this.colorInfo.whiteColor);
+        this.context.fillStyle = textColor;
+        this.context.fillText(str, textX - textWidth, textY + 5);
+        this.context.font = oldFont;
+    }
+
 
     private drawMoves() {
         this.getIncreaseMsg = function (tradeBuy:MoveTrade, tradeSell:MoveTrade) {
@@ -443,16 +472,17 @@ export class CandleStickGraph {
         }
 
         for (let i = 0; i < this.moves.length; i++) {
-            const TRIANGLE_SIZE = 10;
-            let x = Math.min(
-                Math.max(TRIANGLE_SIZE * 4, this.xToPixelCoords(this.moves[i].timestamp)),
-                this.xPixelRange + TRIANGLE_SIZE * 4);
+            const TRIANGLE_SIZE = this.options.triangleSize;
 
-            let y = Math.max(TRIANGLE_SIZE * 4, this.yToPixelCoords(this.moves[i].cryptoValue));
+            let x = Math.min(
+                Math.max(TRIANGLE_SIZE * 2, this.xToPixelCoords(this.moves[i].timestamp)),
+                this.xPixelRange + TRIANGLE_SIZE * 2);
+
+            let y = Math.max(TRIANGLE_SIZE, this.yToPixelCoords(this.moves[i].cryptoValue));
             if (this.moves[i].type === "buy") {
-                this.drawTriangleUp(x, y, TRIANGLE_SIZE, this.colorInfo.greenColor);
+                this.drawTriangleUp(x, y +TRIANGLE_SIZE, TRIANGLE_SIZE, this.colorInfo.whiteColor,'BUY');
             } else {
-                this.drawTriangleDown(x, y, TRIANGLE_SIZE, this.colorInfo.redColor);
+                this.drawTriangleDown(x, y - TRIANGLE_SIZE , TRIANGLE_SIZE, this.colorInfo.whiteColor,'SELL');
             }
 
             if (i !== 0 && this.moves[i].type === "sell") {
@@ -461,9 +491,11 @@ export class CandleStickGraph {
                 let xBuy = this.xToPixelCoords(this.moves[i-1].timestamp);
                 let yBuy = this.yToPixelCoords(this.moves[i-1].cryptoValue);
 
-                // this.context.setLineDash([30, 10]);
+                this.context.setLineDash([20, 10]);
+                this.setLineWidth(2);
                 this.drawLine(xSell, ySell, xBuy, yBuy, this.colorInfo.growLineColor);
-                // this.context.setLineDash([]);
+                this.resetLineWidth()
+                this.context.setLineDash([]);
 
                 let leftIntersect = this.lineIntersect(
                     xSell,ySell,
@@ -495,7 +527,26 @@ export class CandleStickGraph {
                 }
 
             }
+
+            if(this.options.wantSideMarksMove){
+                this.drawSideMarksMove(this.moves[i]);
+            }
         }
+    }
+
+    private drawSideMarksMove(m:MoveTrade) {
+        const color = m.type === 'sell' ? this.colorInfo.redColor : this.colorInfo.greenColor;
+        const textColor = m.type === 'sell' ? this.colorInfo.blackColor : this.colorInfo.blackColor;
+        // draw a rectangle with the price on the right side
+        const str = this.roundPriceValue(m.cryptoValue).toString()
+
+        this.drawSmallRectangleWithText(
+            this.width,
+            this.yToPixelCoords(m.cryptoValue),
+            str,
+            color,
+            textColor
+        );
     }
 
     private drawDrops() {
@@ -558,6 +609,7 @@ export class CandleStickGraph {
         // draw the candle and the wick
         if (this.options.wantCandles) {
             if (isRising) {
+                this.setLineWidth(this.options.lineWidthGreen ?? this.options.lineWidth)
                 this.drawRect(xOnGraph - Math.floor(this.candleWidth / 2),
                     yTopOnGraph,
                     this.candleWidth, height, color);
@@ -568,12 +620,18 @@ export class CandleStickGraph {
                 this.fillRect(xOnGraph - Math.floor(this.candleWidth / 2), yTopOnGraph,
                     this.candleWidth, height, color);
 
+                this.resetLineWidth()
+
             } else {
+
+                this.setLineWidth(this.options.lineWidthRed ?? this.options.lineWidth)
                 this.drawRect(xOnGraph - Math.floor(this.candleWidth / 2), yTopOnGraph,
                     this.candleWidth, height, color);
 
                 this.drawLine(xOnGraph, yTopOnGraph, xOnGraph, yLineHigh, color);
                 this.drawLine(xOnGraph, yDownOnGraph, xOnGraph, yLineLow, color);
+
+                this.resetLineWidth();
             }
         }
     }
@@ -845,6 +903,22 @@ export class CandleStickGraph {
         this.context.fill();
     }
 
+    private fillRectRounded = (x: number, y: number, width: number, height: number, color: string, radius:number) => {
+        this.context.beginPath();
+        this.context.fillStyle = color;
+        this.context.moveTo(x + radius, y);
+        this.context.lineTo(x + width - radius, y);
+        this.context.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.context.lineTo(x + width, y + height - radius);
+        this.context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.context.lineTo(x + radius, y + height);
+        this.context.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.context.lineTo(x, y + radius);
+        this.context.quadraticCurveTo(x, y, x + radius, y);
+        this.context.closePath();
+        this.context.fill();
+    }
+
     private fillPolygon(points: { x: number; y: number }[], greenColor: string) {
         this.context.beginPath();
         this.context.fillStyle = greenColor;
@@ -858,22 +932,36 @@ export class CandleStickGraph {
         this.context.fill();
     }
 
-    private drawTriangleUp = (x: number, y: number, lat: number, color: string)=> {
+    private drawTriangleUp = (x: number, y: number, lat: number, color: string,label?:string)=> {
         this.context.beginPath();
         this.context.fillStyle = color;
         this.context.moveTo(x + lat, y + lat);
         this.context.lineTo(x, y - lat/1.5);
         this.context.lineTo(x - lat, y + lat);
         this.context.fill();
+
+        if(label){
+            this.context.font = CandleStickGraph.getFont((this.TEXT_FONT_SIZE*2),this.options.baseFontName);
+            const textW = this.context.measureText(label).width;
+            this.context.fillStyle = this.colorInfo.whiteColorMoreTrasparent;
+            this.context.fillText(label, x - textW/2, y - lat*8);
+        }
     }
 
-    private drawTriangleDown = (x: number, y: number, lat: number, color: string) => {
+    private drawTriangleDown = (x: number, y: number, lat: number, color: string,label?:string) => {
         this.context.beginPath();
         this.context.fillStyle = color;
         this.context.moveTo(x + lat, y - lat);
         this.context.lineTo(x, y + lat/1.5);
         this.context.lineTo(x - lat, y - lat);
         this.context.fill();
+
+        if(label){
+            this.context.font = CandleStickGraph.getFont((this.TEXT_FONT_SIZE*2),this.options.baseFontName);
+            const textW = this.context.measureText(label).width;
+            this.context.fillStyle = this.colorInfo.whiteColorMoreTrasparent;
+            this.context.fillText(label, x - textW/2, y + lat*8);
+        }
     }
 
     private drawRect = (x: number, y: number, width: number, height: number, color: string) => {
@@ -1122,7 +1210,7 @@ export class CandleStickGraph {
         const paddingTop = 60;
         const textSize = (40)
 
-        this.context.font = CandleStickGraph.getFont(textSize,this.BASE_FONT);
+        this.context.font = CandleStickGraph.getFont(textSize,this.options.baseFontName);
         this.context.fillStyle = this.colorInfo.whiteColor;
 
         const baseType =
@@ -1133,7 +1221,7 @@ export class CandleStickGraph {
             , 10 + paddingLeft, textSize);
 
         this.context.fillStyle = this.colorInfo.gridTextColor;
-        this.context.font = CandleStickGraph.getFont(textSize/2,this.BASE_FONT);
+        this.context.font = CandleStickGraph.getFont(textSize/2,this.options.baseFontName);
         const day = new Date(this.candlesticks[Math.floor(this.candlesticks.length/2)].timestamp)
         this.context.fillText(this.formatDateNoHours(day), 10 + paddingLeft, textSize + textSize/2);
 
